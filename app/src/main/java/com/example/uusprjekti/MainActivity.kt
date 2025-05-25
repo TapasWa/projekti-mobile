@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.example.uusprjekti
 
 import android.os.Bundle
@@ -38,10 +40,15 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.core.view.WindowCompat
+import androidx.compose.foundation.layout.systemBars
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        window.statusBarColor = android.graphics.Color.TRANSPARENT
+        window.navigationBarColor = android.graphics.Color.TRANSPARENT
         setContent {
             UusPrjektiTheme {
                 AppContent()
@@ -63,7 +70,8 @@ fun AppContent() {
                         "Armor" to "25–120 mm",
                         "Main armament" to "8.8 cm KwK 36",
                         "Speed" to "38 km/h"
-                    )
+                    ),
+                    youtubeURL = "https://www.youtube.com/embed/Yl_zCQZooJo"
                 ),
                 Tank(
                     "T-34", R.drawable.t_34, "Soviet medium tank, highly influential in WWII.", "Russia", R.drawable.venaja, specs = mapOf(
@@ -71,7 +79,8 @@ fun AppContent() {
                         "Armor" to "15–60 mm",
                         "Main armament" to "76.2 mm F-34",
                         "Speed" to "53 km/h"
-                    )
+                    ),
+                    youtubeURL = "https://www.youtube.com/embed/0v5zdE21gXU"
                 ),
                 Tank(
                     "M4 Sherman", R.drawable.m4, "Main US tank in WWII.", "USA", R.drawable.usa, specs = mapOf(
@@ -79,7 +88,8 @@ fun AppContent() {
                         "Armor" to "12–75 mm",
                         "Main armament" to "75 mm M3",
                         "Speed" to "48 km/h"
-                    )
+                    ),
+                    youtubeURL = "https://www.youtube.com/embed/Ak_EPTAeUxE"
                 ),
                 Tank(
                     "Leopard 2A8", R.drawable.leopard_2a8, "Modern German main battle tank.", "Germany", R.drawable.saksa, specs = mapOf(
@@ -87,7 +97,8 @@ fun AppContent() {
                         "Armor" to "Composite, classified",
                         "Main armament" to "120 mm Rheinmetall L/55",
                         "Speed" to "68 km/h"
-                    )
+                    ),
+                    youtubeURL = "https://www.youtube.com/embed/h4y_vX2DQ2Q"
                 ),
                 Tank(
                     "T-90M", R.drawable.t_90m, "Modern Russian main battle tank.", "Russia", R.drawable.venaja, specs = mapOf(
@@ -95,7 +106,8 @@ fun AppContent() {
                         "Armor" to "Composite, ERA",
                         "Main armament" to "125 mm 2A46M-5",
                         "Speed" to "60 km/h"
-                    )
+                    ),
+                    youtubeURL = "https://www.youtube.com/embed/RChZhu4GCrQ"
                 )
             )
         )
@@ -106,7 +118,8 @@ fun AppContent() {
             selectedTank = selectedTank!!.copy(isFavorite = isFavorite)
         }
     }
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier
+        .fillMaxSize()) {
         Image(
             painter = painterResource(id = R.drawable.kf_51),
             contentDescription = "Blurred background",
@@ -120,7 +133,10 @@ fun AppContent() {
             transitionSpec = {
                 scaleIn(animationSpec = tween(400)).togetherWith(scaleOut(animationSpec = tween(400)))
             },
-            label = "TankScreenTransition"
+            label = "TankScreenTransition",
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(WindowInsets.systemBars.asPaddingValues())
         ) { tankName ->
             if (tankName == null) {
                 TankListScreen(
@@ -154,7 +170,7 @@ fun TankListScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp)
+            .padding(24.dp, vertical = 0.dp)
     ) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Bottom) {
             OutlinedTextField(
@@ -261,19 +277,20 @@ fun TankDetailScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
+
     ) {
         TextButton(
             onClick = onBack,
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .padding(16.dp)
+                .padding(start = 16.dp,top = 16.dp)
         ) {
             Text("Back", color = Color.White)
         }
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp),
+                .padding(horizontal = 24.dp, vertical = 0.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(32.dp))
@@ -335,6 +352,16 @@ fun TankDetailScreen(
                     }
                 }
             }
+            if (!tank.youtubeURL.isNullOrEmpty()) {
+                val videoId = tank.youtubeURL.substringAfterLast("/")
+                Spacer(modifier = Modifier.height(16.dp))
+                YoutubePlayer(
+                    videoId = videoId,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                )
+            }
         }
     }
 }
@@ -346,5 +373,6 @@ data class Tank(
     val country: String, // maat
     val flagRes: Int,    // maiden liput
     var isFavorite: Boolean = false,
-    val specs: Map<String, String> = emptyMap()
+    val specs: Map<String, String> = emptyMap(),
+    val youtubeURL: String? = ""
 )
